@@ -62,7 +62,7 @@ void exec_command(Command* c) {
     if (is_builtin(c->cmd)) {
         exec_builtin(c);
     } else {
-        exec_command(c);
+        run_command(c);
     }
 }
 
