@@ -20,17 +20,17 @@ int is_builtin(char* cmd) {
 
 void exec_builtin(Command* c) {
     if (strcmp(c->cmd, "cd") == 0) {
-        cmd_cd(c->args);
+        cmd_cd(c->args + 1);
     } else if (strcmp(c->cmd, "export") == 0) {
-        cmd_export(c->args);
+        cmd_export(c->args + 1);
     } else if (strcmp(c->cmd, "history") == 0) {
-        cmd_history(c->args);
+        cmd_history(c->args + 1);
     } else if (strcmp(c->cmd, "echo") == 0) {
-        cmd_echo(c->args);
+        cmd_echo(c->args + 1);
     } else if (strcmp(c->cmd, "exit") == 0) {
         cmd_exit();
     } else if (strcmp(c->cmd, "env") == 0) {
-        cmd_env(c->args);
+        cmd_env(c->args + 1);
     }
 }
 
