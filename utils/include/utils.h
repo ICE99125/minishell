@@ -108,7 +108,7 @@ char* strjoin(const char* src, const char* sub, const char* join_with);
 // write command into .history
 void write_to_history();
 
-void add(char* cmd);
+void add_cmd(char* cmd);
 
 void initHistory();
 

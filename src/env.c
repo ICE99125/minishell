@@ -19,8 +19,10 @@ void cmd_env(char** args) {
         if (p) {
             char* key = (char*)malloc(sizeof(char) * (p - args[0] + 1));
             strncpy(key, args[0], p - args[0]);
-            set_env(key, p + 1, 1);
+            char* value = strtrim(p + 1, "\"", both);  // remove the double quotation marks
+            set_env(key, value, 1);
             free(key);
+            free(value);
             show_all_env();
         } else {
             // env sass

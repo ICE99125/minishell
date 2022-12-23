@@ -1,8 +1,11 @@
 #include "include/minishell.h"
 
 void run() {
-    welcome_to_shell();
+    initShell();
     initHistory();
+
+    welcome_to_shell();
+
     signal(SIGINT, interruptHandler);
 
     char* input;       // user input
@@ -13,7 +16,7 @@ void run() {
 
         size_t buffer_size = 0;
         getline(&input, &buffer_size, stdin);
-        add(input);
+        add_cmd(input);
 
         Command** list = parse(input);
 

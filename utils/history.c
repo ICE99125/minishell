@@ -24,13 +24,13 @@ void initHistory() {
         p    = fgets(line, 1024, fp);
 
         if (p) {
-            add(line);
+            add_cmd(line);
             old_cmd_num++;
         }
     }
 }
 
-void add(char* cmd) {
+void add_cmd(char* cmd) {
     cmdLink* n = (cmdLink*)malloc(sizeof(cmdLink));
 
     n->cmd  = cmd;

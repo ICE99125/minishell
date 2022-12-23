@@ -1,2 +1,9 @@
 ll
 exit
+env
+env ARCTURUS=hello
+export
+clear
+ls
+clear
+export

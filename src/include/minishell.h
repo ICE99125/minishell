@@ -10,6 +10,24 @@ typedef struct {
     char*  raw;
 } Command;
 
+// shell variable
+typedef struct var {
+    char*       key;
+    char*       value;
+    int         isEnv;
+    struct var* next;
+} var;
+
+// shellvar.c
+
+void initShell();
+
+void add_var(char* key, char* value, int isEnv);
+
+void show_export();
+
+var* search_var(char* key);
+
 // alias.c
 
 void alias(char*** c);
