@@ -77,9 +77,11 @@ Command** parse(char* input) {
     for (int i = 0; NULL != cmds[i]; i++) {
         char** temp = strsplit(cmds[i], " \t");  // split by \t or space
 
+        alias(&temp);
+
         Command* c = (Command*)malloc(sizeof(Command));
         c->cmd     = temp[0];
-        c->args    = temp + 1;
+        c->args    = temp;
         c->back    = 0;
 
         if (isBackRun(c->args)) {

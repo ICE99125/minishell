@@ -9,6 +9,10 @@ typedef struct {
     int    back;  // &
 } Command;
 
+// alias.c
+
+void alias(char*** c);
+
 // minishell.c
 
 void run();
