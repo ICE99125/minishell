@@ -101,16 +101,16 @@ char** strsplit(const char* source, const char* separator) {
 }
 
 char* strtrim(const char* str, const char* flag, Direct direct) {
-    int len = strlen(str);
-    int i   = 0;
+    int len1 = strlen(str), len2 = strlen(flag);
+    int i = 0;
 
-    char* res = (char*)malloc(sizeof(char) * (len + 1));
+    char* res = (char*)malloc(sizeof(char) * (len1 + 1));
 
     if (direct == left) {
         int s = startswith(str, flag);
 
         if (s) {
-            strcpy(res, str + strlen(flag));
+            strcpy(res, str + len2);
         } else {
             strcpy(res, str);
         }
@@ -118,21 +118,24 @@ char* strtrim(const char* str, const char* flag, Direct direct) {
         int s = endswith(str, flag);
 
         if (s) {
-            strncpy(res, str, strlen(str) - strlen(flag));
+            strncpy(res, str, len1 - len2);
+            res[len1 - len2] = '\0';
         } else {
             strcpy(res, str);
         }
     } else if (direct == both) {
         int s1 = startswith(str, flag);
         int s2 = endswith(str, flag);
-        int l  = strlen(flag);
+        int l  = len2;
 
         if (s1 && s2) {
-            strncpy(res, str + l, len - 2 * l);
+            strncpy(res, str + l, len1 - 2 * l);
+            res[len1 - 2 * l] = '\0';
         } else if (s1) {
             strcpy(res, str + l);
         } else if (s2) {
-            strncpy(res, str, strlen(str) - l);
+            strncpy(res, str, len1 - l);
+            res[len1 - l] = '\0';
         } else {
             strcpy(res, str);
         }
