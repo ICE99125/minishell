@@ -1,9 +1,6 @@
-ll
+echo $PATH
+echo $PATH
+make
 exit
-env
-env ARCTURUS=hello
-export
-clear
-ls
-clear
-export
+echo $PATH
+exit

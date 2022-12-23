@@ -17,8 +17,33 @@ void cmd_echo(char** args) {
 
     while (args[i] != NULL) {
         // echo "xxx" will become echo xxx
-        c   = strtrim(args[i], "\"", both);
-        new = strjoin(msg, c, " ");
+        c = strtrim(args[i], "\"", both);
+
+        char* p = strstr(c, "$");
+
+        if (p != NULL) {
+            var* v = search_var(p + 1);
+
+            char* t;
+
+            if (v != NULL) {
+                t = (char*)malloc(sizeof(char) * (p - c + strlen(v->value) + 1));
+                strncpy(t, c, p - c);
+                t[p - c] = '\0';
+                strcat(t, v->value);
+            } else {
+                // no variable
+                t = (char*)malloc(sizeof(char) * (p - c + 1));
+                strncpy(t, c, p - c);
+                t[p - c] = '\0';
+            }
+
+            new = strjoin(msg, t, " ");
+
+            free(t);
+        } else {
+            new = strjoin(msg, c, " ");
+        }
 
         free(c);
 
