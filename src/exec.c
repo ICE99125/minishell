@@ -83,6 +83,7 @@ Command** parse(char* input) {
         c->cmd     = temp[0];
         c->args    = temp;
         c->back    = 0;
+        c->raw     = cmds[i];
 
         if (isBackRun(c->args)) {
             c->back = 1;

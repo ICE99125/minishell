@@ -7,6 +7,7 @@ typedef struct {
     char*  cmd;
     char** args;
     int    back;  // &
+    char*  raw;
 } Command;
 
 // alias.c
