@@ -2,6 +2,8 @@
 
 void run() {
     welcome_to_shell();
+    initHistory();
+    signal(SIGINT, interruptHandler);
 
     char* input;       // user input
     int   status = 1;  // whether to exit the shell
@@ -11,6 +13,7 @@ void run() {
 
         size_t buffer_size = 0;
         getline(&input, &buffer_size, stdin);
+        add(input);
 
         Command** list = parse(input);
 

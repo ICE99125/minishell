@@ -5,7 +5,9 @@
 // @Created : 2022-12-21 16:31:03
 
 #include <errno.h>
+#include <fcntl.h>
 #include <pwd.h>
+#include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -96,5 +98,20 @@ char* strtrim(const char* str, const char* flag, Direct direct);
 
 // concatenate string
 char* strjoin(const char* src, const char* sub, const char* join_with);
+
+// history.c
+
+// write command into .history
+void write_to_history();
+
+void add(char* cmd);
+
+void initHistory();
+
+void show_history(int num);
+
+// signal.c
+
+void interruptHandler(int signum);
 
 #endif

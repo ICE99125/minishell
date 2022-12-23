@@ -1,0 +1,9 @@
+ls
+cd
+cd
+ls
+history
+ls;date
+history
+echo "hello"
+exit
