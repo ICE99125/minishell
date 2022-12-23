@@ -4,6 +4,7 @@
 // @Author : ARCTURUS <ice99125@qq.com>
 // @Created : 2022-12-21 16:31:03
 
+#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <pwd.h>
@@ -82,6 +83,9 @@ typedef enum Direct {
     both,
 } Direct;
 
+// whether string is a number
+int isDigit(char* str);
+
 // determines whether the src begins with dest
 // if src does not begin with dest then return 0, otherwise, return 1
 int startswith(const char* src, const char* dest);
@@ -107,6 +111,12 @@ void write_to_history();
 void add(char* cmd);
 
 void initHistory();
+
+void clear_history();
+
+FILE* open_history(char* mode);
+
+void write_to_history_and_close();
 
 void show_history(int num);
 

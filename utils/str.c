@@ -164,3 +164,19 @@ char* strjoin(const char* src, const char* sub, const char* join_with) {
 
     return res;
 }
+
+int isDigit(char* str) {
+    int len = strlen(str);
+
+    if (str[0] != '-') {
+        for (int i = 0; i < len; i++) {
+            if (!isdigit(str[i])) return 0;
+        }
+    } else {
+        for (int i = 1; i < len; i++) {
+            if (!isdigit(str[i])) return 0;
+        }
+    }
+
+    return 1;
+}

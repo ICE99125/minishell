@@ -3,18 +3,19 @@
 FILE* fp;
 
 int old_cmd_num = 0;  // easy to write new instructions quickly
+int cmd_num     = 0;  // number of current commond
 
 typedef struct cmdLink {
     char*           cmd;
+    int             id;
     struct cmdLink* next;
+    struct cmdLink* pre;
 } cmdLink;
 
-cmdLink* root;
+cmdLink *start = NULL, *end = NULL;
 
 void initHistory() {
-    if ((fp = fopen(".history", "a+")) == NULL) {
-        show_error(1, "open file \".history\" failed.");
-    }
+    fp = open_history("a+");
 
     char *line = NULL, *p = NULL;
 
@@ -33,26 +34,23 @@ void add(char* cmd) {
     cmdLink* n = (cmdLink*)malloc(sizeof(cmdLink));
 
     n->cmd  = cmd;
-    n->next = root;
-    root    = n;
-}
+    n->pre  = end;
+    n->next = NULL;
 
-// reverse linked list
-cmdLink* reverse(cmdLink* node) {
-    cmdLink *pre = NULL, *cur = node, *next = NULL;
-
-    while (cur) {
-        next      = cur->next;
-        cur->next = pre;
-        pre       = cur;
-        cur       = next;
+    if (end != NULL) {
+        end->next = n;
     }
 
-    return pre;
+    if (start == NULL) {
+        start = n;
+    }
+
+    n->id = cmd_num++;
+    end   = n;
 }
 
 void write_to_history() {
-    cmdLink* link = reverse(root);
+    cmdLink* link = start;
 
     for (int i = 0; i < old_cmd_num; i++) {
         link = link->next;
@@ -63,19 +61,74 @@ void write_to_history() {
         link = link->next;
     }
 
+    fflush(fp);  // write into history immediately
+}
+
+void write_to_history_and_close() {
+    write_to_history();
     fclose(fp);
 }
 
-int num = 0;
+void show_history(int num) {
+    if (num < 0) {
+        cmdLink* link = start;
 
-void input_one_cmd(cmdLink* c) {
-    if (c != NULL) {
-        input_one_cmd(c->next);
-        printf("%d %s", num++, c->cmd);
+        while (link) {
+            printf("%d %s", link->id, link->cmd);
+            link = link->next;
+        }
+
+    } else {
+        int n = num < cmd_num ? num : cmd_num;
+
+        cmdLink* link = end;
+
+        for (int i = 0; i < n - 1; i++) {
+            link = link->pre;
+        }
+
+        for (int i = 0; i < n; i++) {
+            printf("%d %s", link->id, link->cmd);
+            link = link->next;
+        }
     }
 }
 
-void show_history(int num) {
-    input_one_cmd(root);
-    num = 0;
+// clear history file content
+void clear_file() {
+    if (fp != NULL) {
+        fclose(fp);
+    }
+
+    fp = open_history("w");
+    fclose(fp);
+
+    open_history("a+");
+}
+
+void clear_history() {
+    cmdLink *cur = start, *next = NULL;
+
+    while (cur) {
+        next = cur->next;
+        free(cur);
+        cur = next;
+    }
+
+    old_cmd_num = 0;
+    cmd_num     = 0;
+    start       = NULL;
+    end         = NULL;
+
+    clear_file();
+}
+
+FILE* open_history(char* mode) {
+    FILE* fp = NULL;
+
+    if ((fp = fopen("history", mode)) == NULL) {
+        show_error(1, "open file \"history\" failed.");
+    }
+
+    return fp;
 }
