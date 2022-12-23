@@ -116,15 +116,14 @@ void alias(char*** c) {
         } else if (strcmp((*c)[0], "ls") == 0) {
             t[0] = ls.cmd;
             t[1] = ls.args[0];
-            t[2] = ls.args[1];
 
             int i = 0;
             while ((*c)[i + 1]) {
-                t[i + 3] = (*c)[i + 1];
+                t[i + 2] = (*c)[i + 1];
                 i++;
             }
 
-            t[i + 3] = NULL;
+            t[i + 2] = NULL;
         } else if (strcmp((*c)[0], "la") == 0) {
             t[0] = la.cmd;
             t[1] = la.args[0];
