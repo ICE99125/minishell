@@ -83,6 +83,12 @@ typedef enum Direct {
     both,
 } Direct;
 
+// open file mode
+typedef enum {
+    WRITE,
+    APPEND,
+} fmode;
+
 // whether string is a number
 int isDigit(char* str);
 
@@ -123,5 +129,8 @@ void show_history(int num);
 // signal.c
 
 void interruptHandler(int signum);
+
+// file.c
+void writeTofile(char* dst, char* content, int mode);
 
 #endif

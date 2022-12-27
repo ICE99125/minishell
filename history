@@ -4,3 +4,16 @@ make
 exit
 echo $PATH
 exit
+echo >> 
+echo
+echo 1
+echo 8
+echo >>
+echo 1
+echo 7
+echo 11
+echo 1
+echo 1
+echo 1
+history
+echo 1

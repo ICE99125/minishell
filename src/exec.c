@@ -69,32 +69,44 @@ void exec_command(Command* c) {
 // parse user input into an Command array
 Command** parse(char* input) {
     char** cmds = strsplit(input, ";\r\n");  // split by ';'
+    char **temp = NULL, **t = NULL;
 
     int buf_s = 2, p = 0;
 
     Command** res = (Command**)malloc(sizeof(Command*) * buf_s);
 
     for (int i = 0; NULL != cmds[i]; i++) {
-        char** temp = strsplit(cmds[i], " \t");  // split by \t or space
+        temp = strsplit(cmds[i], "|");
 
-        alias(&temp);
+        for (int j = 0; NULL != temp[j]; j++) {
+            if (strstr(temp[j], "=") != NULL) {
+                // NAME=123
+                t = strsplit(temp[j], "=");
+                add_var(t[0], t[1], 0);
+            } else {
+                // ls -al /etc | less
+                t = strsplit(temp[j], " \t");  // split by \t or space
 
-        Command* c = (Command*)malloc(sizeof(Command));
-        c->cmd     = temp[0];
-        c->args    = temp;
-        c->back    = 0;
-        c->raw     = cmds[i];
+                alias(&t);
 
-        if (isBackRun(c->args)) {
-            c->back = 1;
-        }
+                Command* c = (Command*)malloc(sizeof(Command));
+                c->cmd     = t[0];
+                c->args    = t;
+                c->back    = 0;
+                c->raw     = cmds[i];
 
-        res[p++] = c;
+                if (isBackRun(c->args)) {
+                    c->back = 1;
+                }
 
-        if (p >= buf_s) {
-            // resize
-            buf_s *= 2;
-            res = (Command**)realloc(res, sizeof(Command*) * buf_s);
+                res[p++] = c;
+
+                if (p >= buf_s) {
+                    // resize
+                    buf_s *= 2;
+                    res = (Command**)realloc(res, sizeof(Command*) * buf_s);
+                }
+            }
         }
     }
 
