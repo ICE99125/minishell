@@ -6,10 +6,11 @@
 - [x] 支持串行执行多个命令 `;`
 - [ ] 支持管道 `|`
 - [x] 支持环境变量 `export` `env`
-- [x] 支持字符串的输出 `echo`, 重定向 `>>` `>`
+- [x] 支持字符串的输出 `echo`
+- [ ] 重定向 `>>` `>` `<`
 - [x] 支持变量 `$`
 - [x] 支持历史 `history` `-c` `-a` `n`
-- [x] 支持 `alias` (不能自定义)
+- [x] 支持 `alias`
 
 ## 编译
 
@@ -23,8 +24,7 @@ make build
 make test
 ```
 
-回车后可以看到 shell 界面
-
 ![minishell](./assets/demo1.png)
 
 ## 设计
+

@@ -38,18 +38,21 @@
 
 #define SUCCESS "\033[36m%s\033[0m"  // green
 
+#define true 1
+#define false 0
+
 // env.c
 
 char* get_env(const char* key);
 
 void show_all_env();
 
-void unset_env(const char* key);
+int unset_env(const char* key);
 
 // set enviroment variable by additional
-void put_env(const char* key, const char* value);
+int put_env(const char* key, const char* value);
 
-void set_env(const char* key, const char* value, int overwrite);
+int set_env(const char* key, const char* value, int overwrite);
 
 // printf.c
 
@@ -75,19 +78,13 @@ char* get_user_name();
 
 char* get_cur_home_dir();
 
-// str.c
-
 typedef enum Direct {
-    left,
-    right,
-    both,
+    LEFT,
+    RIGHT,
+    BOTH,
 } Direct;
 
-// open file mode
-typedef enum {
-    WRITE,
-    APPEND,
-} fmode;
+// str.c
 
 // whether string is a number
 int isDigit(char* str);
@@ -101,7 +98,7 @@ int endswith(const char* src, const char* dest);
 // @param all: whether replace all string in str
 char* strrepl(const char* str, const char* search, const char* replace_with, int all);
 
-char** strsplit(const char* source, const char* separator);
+char** strsplit(const char* source, const char* separator, int recycle);
 
 // @param direct: 0: left, 1: right, 2: both
 char* strtrim(const char* str, const char* flag, Direct direct);
@@ -112,25 +109,52 @@ char* strjoin(const char* src, const char* sub, const char* join_with);
 // history.c
 
 // write command into .history
-void write_to_history();
+void write_to_history(int close);
 
 void add_cmd(char* cmd);
 
-void initHistory();
+void init_history();
 
 void clear_history();
 
 FILE* open_history(char* mode);
 
-void write_to_history_and_close();
-
 void show_history(int num);
 
 // signal.c
 
-void interruptHandler(int signum);
+void interrupt_handler(int signum);
 
-// file.c
-void writeTofile(char* dst, char* content, int mode);
+// shell variable
+typedef struct var {
+    char* key;
+    char* value;
+    int is_env;
+    struct var* next;
+} var;
+
+// shellvar.c
+
+void init_shell();
+
+void add_var(char* key, char* value, int is_env);
+
+void show_export();
+
+var* search_var(char* key);
+
+// alias.c
+
+void add_alias(char* alias, char* real, char** args);
+
+void init_alias();
+
+void alias_handler(char*** c);
+
+// free.c
+
+void add_recycle(void* v);  // collect variables to be recycled
+
+void free_recycle();
 
 #endif

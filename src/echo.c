@@ -12,63 +12,42 @@ void cmd_echo(char** args) {
         }
     }
 
-    int   i   = options;
+    int i     = options;
     char *msg = NULL, *c = NULL, *new = NULL;
 
     while (args[i] != NULL) {
-        // echo xxx >> test.txt
-        if ((strcmp(args[i], ">>") == 0) || strcmp(args[i], ">") == 0) {
-            if (args[i + 1] == NULL) {
-                printf("syntax error after \">>\".\n");
+        // echo "xxx" will become echo xxx
+        c = strtrim(args[i], "\"", BOTH);
+
+        char* p = strstr(c, "$");
+
+        if (p != NULL) {
+            var* v = search_var(p + 1);
+
+            char* t;
+
+            if (v != NULL) {
+                t = (char*)malloc(sizeof(char) * (p - c + strlen(v->value) + 1));
+                strncpy(t, c, p - c);
+                t[p - c] = '\0';
+                strcat(t, v->value);
             } else {
-                int flag = strcmp(args[i], ">>") == 0 ? APPEND : WRITE;
-                writeTofile(args[i + 1], msg, flag);
+                // no variable
+                t = (char*)malloc(sizeof(char) * (p - c + 1));
+                strncpy(t, c, p - c);
+                t[p - c] = '\0';
             }
 
-            if (msg != NULL) {
-                free(msg);
-            }
+            add_recycle(t);
 
-            return;
+            new = strjoin(msg, t, " ");
+
         } else {
-            // echo "xxx" will become echo xxx
-            c = strtrim(args[i], "\"", both);
-
-            char* p = strstr(c, "$");
-
-            if (p != NULL) {
-                var* v = search_var(p + 1);
-
-                char* t;
-
-                if (v != NULL) {
-                    t = (char*)malloc(sizeof(char) * (p - c + strlen(v->value) + 1));
-                    strncpy(t, c, p - c);
-                    t[p - c] = '\0';
-                    strcat(t, v->value);
-                } else {
-                    // no variable
-                    t = (char*)malloc(sizeof(char) * (p - c + 1));
-                    strncpy(t, c, p - c);
-                    t[p - c] = '\0';
-                }
-
-                new = strjoin(msg, t, " ");
-
-                free(t);
-            } else {
-                new = strjoin(msg, c, " ");
-            }
-
-            free(c);
-
-            if (msg != NULL) {
-                free(msg);
-            }
-
-            msg = new;
-            i++;
+            new = strjoin(msg, c, " ");
         }
+
+        msg = new;
+        i++;
     }
 
     if (msg != NULL) {
@@ -79,7 +58,5 @@ void cmd_echo(char** args) {
             // echo -n "xxx" or echo "xxx"
             printf("%s", msg);
         }
-
-        free(msg);
     }
 }

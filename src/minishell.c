@@ -1,29 +1,36 @@
 #include "include/minishell.h"
 
 void run() {
-    initShell();
-    initHistory();
+    init_shell();
+    init_history();
+    init_alias();
 
     welcome_to_shell();
 
-    signal(SIGINT, interruptHandler);
+    signal(SIGINT, interrupt_handler);
 
-    char* input;       // user input
-    int   status = 1;  // whether to exit the shell
+    char* input;  // user input
 
-    while (status) {
+    while (true) {
         prompt_msg();
 
         size_t buffer_size = 0;
         getline(&input, &buffer_size, stdin);
         add_cmd(input);
 
-        Command** list = parse(input);
+        Command* list = parse(input);
 
-        for (int i = 0; NULL != list[i]; i++) {
-            exec_command(list[i]);
+        int i = 0;
+        while (list) {
+            if (strcmp(list->cmd, "exit") == 0) {
+                cmd_exit();
+            } else {
+                exec_command(list);
+            }
+
+            list = list->next;
         }
 
-        free(list);
+        free_recycle();
     }
 }

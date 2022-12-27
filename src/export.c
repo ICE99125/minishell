@@ -9,13 +9,13 @@ void cmd_export(char** args) {
         int i = 0;
 
         while (args[i]) {
-            char** t = strsplit(args[i], "=");
+            char** t = strsplit(args[i], "=", false);
 
             var* v = search_var(t[0]);
 
             if (v != NULL) {
-                v->value = t[1];
-                v->isEnv = 1;
+                v->value  = t[1];
+                v->is_env = 1;
             } else {
                 add_var(t[0], t[1], 1);
             }

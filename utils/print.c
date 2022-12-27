@@ -8,14 +8,11 @@ void prompt_msg() {
 
     if (startswith(cwd, home)) {
         char* t = strrepl(cwd, home, "~", 0);
-        free(cwd);
         cwd = t;
     }
 
     printf(TIP, uname, kname, cwd);
     printf(" ");
-
-    free(cwd);
 }
 
 void welcome_to_shell() {

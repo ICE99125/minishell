@@ -20,13 +20,13 @@ void cmd_env(char** args) {
             char* key = (char*)malloc(sizeof(char) * (p - args[0] + 1));
             strncpy(key, args[0], p - args[0]);
             key[p - args[0]] = '\0';
-            char* value      = strtrim(p + 1, "\"", both);  // remove the double quotation marks
+
+            char* value = strtrim(p + 1, "\"", BOTH);  // remove the double quotation marks
+
             set_env(key, value, 1);
-            free(key);
-            free(value);
+            add_recycle(key);
             show_all_env();
         } else {
-            // env sass
             if (access(args[0], F_OK) == -1) {
                 printf("env: \"%s\": no such file or directory.\n", args[0]);
             } else if (access(args[0], R_OK) == -1) {

@@ -16,12 +16,6 @@ void change_dir(char* path) {
         // be useful to "cd -"
         set_env("OLDPWD", cwd, 1);
     }
-
-    free(cwd);
-
-    if (path[0] == '~') {
-        free(p);
-    }
 }
 
 void cmd_cd(char** args) {

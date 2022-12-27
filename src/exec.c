@@ -1,21 +1,33 @@
 #include "include/minishell.h"
 
+Command* newCommand(char* input) {
+    char** t = strsplit(input, " \t", true);  // split by \t or space
+
+    alias_handler(&t);
+
+    Command* c = (Command*)malloc(sizeof(Command));
+    add_recycle(c);
+
+    c->cmd  = t[0];
+    c->args = t;
+    c->raw  = input;
+    c->next = NULL;
+
+    // args_handler(c);
+}
+
+char* builtin[] = { "cd", "export", "history", "echo", "env", NULL };
+
 int is_builtin(char* cmd) {
-    if (strcmp(cmd, "cd") == 0) {
-        return 1;
-    } else if (strcmp(cmd, "export") == 0) {
-        return 1;
-    } else if (strcmp(cmd, "history") == 0) {
-        return 1;
-    } else if (strcmp(cmd, "echo") == 0) {
-        return 1;
-    } else if (strcmp(cmd, "exit") == 0) {
-        return 1;
-    } else if (strcmp(cmd, "env") == 0) {
-        return 1;
+    int i = 0;
+
+    while (builtin[i]) {
+        if (strcmp(cmd, builtin[i++]) == 0) {
+            return true;
+        }
     }
 
-    return 0;
+    return false;
 }
 
 void exec_builtin(Command* c) {
@@ -27,113 +39,123 @@ void exec_builtin(Command* c) {
         cmd_history(c->args + 1);
     } else if (strcmp(c->cmd, "echo") == 0) {
         cmd_echo(c->args + 1);
-    } else if (strcmp(c->cmd, "exit") == 0) {
-        cmd_exit();
     } else if (strcmp(c->cmd, "env") == 0) {
         cmd_env(c->args + 1);
     }
 }
 
-void run_command(Command* c) {
+void exec_command(Command* c) {
     int status;
 
     pid_t pid = fork();
 
-    if (pid == 0) {
+    if (0 == pid) {
         // child process
-        if (-1 == execvp(c->cmd, c->args)) {
-            fprintf(stderr, "command execution error.\n");
+        if (is_builtin(c->cmd)) {
+            exec_builtin(c);
+        } else {
+            if (-1 == execvp(c->cmd, c->args)) {
+                fprintf(stderr, "command execution error.\n");
+            }
         }
     } else if (pid < 0) {
         fprintf(stderr, "create a new process error.\n");
     } else {
         // parent process
-        while (1) {
+        while (true) {
             pid = wait(&status);
 
-            if (pid == -1) {
+            if (-1 == pid) {
                 break;
             }
         }
     }
 }
 
-void exec_command(Command* c) {
-    if (is_builtin(c->cmd)) {
-        exec_builtin(c);
-    } else {
-        run_command(c);
+Command* reverse_link(Command* n) {
+    Command *pre = NULL, *cur = n, *next = NULL;
+
+    while (cur) {
+        next      = cur->next;
+        cur->next = pre;
+        pre       = cur;
+        cur       = next;
     }
+
+    return pre;
 }
 
 // parse user input into an Command array
-Command** parse(char* input) {
-    char** cmds = strsplit(input, ";\r\n");  // split by ';'
+Command* parse(char* input) {
+    char** cmds = strsplit(input, ";\r\n", true);  // split by ';'
     char **temp = NULL, **t = NULL;
 
-    int buf_s = 2, p = 0;
-
-    Command** res = (Command**)malloc(sizeof(Command*) * buf_s);
+    Command* res = NULL;
 
     for (int i = 0; NULL != cmds[i]; i++) {
-        temp = strsplit(cmds[i], "|");
+        temp = strsplit(cmds[i], "|", true);
 
         for (int j = 0; NULL != temp[j]; j++) {
             if (strstr(temp[j], "=") != NULL) {
                 // NAME=123
-                t = strsplit(temp[j], "=");
+                t = strsplit(temp[j], "=", false);
                 add_var(t[0], t[1], 0);
             } else {
-                // ls -al /etc | less
-                t = strsplit(temp[j], " \t");  // split by \t or space
+                Command* c = newCommand(temp[j]);
 
-                alias(&t);
-
-                Command* c = (Command*)malloc(sizeof(Command));
-                c->cmd     = t[0];
-                c->args    = t;
-                c->back    = 0;
-                c->raw     = cmds[i];
-
-                if (isBackRun(c->args)) {
-                    c->back = 1;
-                }
-
-                res[p++] = c;
-
-                if (p >= buf_s) {
-                    // resize
-                    buf_s *= 2;
-                    res = (Command**)realloc(res, sizeof(Command*) * buf_s);
-                }
+                c->next = res;
+                res     = c;
             }
         }
     }
 
-    free(cmds);
-
-    res[p] = NULL;  // flag of commands end
-
-    return res;
+    return reverse_link(res);
 }
 
-int isBackRun(char** args) {
-    int i = 0, b = 0;
+// shallow copy
+Command* clone_command(Command* c) {
+    Command* cc = (Command*)malloc(sizeof(Command));
+    add_recycle(cc);
+
+    cc->args     = c->args;
+    cc->back     = c->back;
+    cc->cmd      = c->cmd;
+    cc->redirect = c->redirect;
+    cc->raw      = c->raw;
+    cc->next     = NULL;
+    cc->path     = c->path;
+
+    return cc;
+}
+
+int args_handler(Command* c) {
+    char** args = c->args;
 
     for (int i = 0; NULL != args[i]; i++) {
-        if (strcmp(args[i], "&") == 0) {
-            b = 1;
+        if (strcmp(args[i], ">>") == 0 || strcmp(args[i], ">") == 0 || strcmp(args[i], "<") == 0) {
+            if (strcmp(args[i], ">>") == 0) {
+                c->redirect = R_DRIGHT;
+            } else if (strcmp(args[i], ">") == 0) {
+                c->redirect = R_RIGHT;
+            } else if (strcmp(args[i], "<") == 0) {
+                c->redirect = R_LEFT;
+            }
 
-            int j = i + 1;
+            if (args[i + 1] == NULL || strcmp(args[i + 1], "&") == 0) {
+                fprintf(stderr, "syntax error after \"%s\".\n", args[i]);
+            }
+
+            int j = i + 2;
             while (args[j]) {
-                free(args[j]);
+                if (strcmp(args[j], "&") == 0) {
+                    c->back = 1;
+                    break;
+                }
+
                 j++;
             }
 
-            args[i] = NULL;  // ignore the parameters after &
-            break;
+            args[i] = NULL;
         }
     }
-
-    return b;
 }

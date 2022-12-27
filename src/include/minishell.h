@@ -3,34 +3,21 @@
 
 #include "../../utils/include/utils.h"
 
-typedef struct {
-    char*  cmd;
+typedef enum {
+    R_LEFT,    // <
+    R_RIGHT,   // >
+    R_DRIGHT,  // >>
+} Redirect;
+
+typedef struct Command {
+    char* cmd;
     char** args;
-    int    back;  // &
-    char*  raw;
+    int back;           // &
+    char* raw;          // originated input
+    Redirect redirect;  // redirect method
+    char* path;         // redirect path
+    struct Command* next;
 } Command;
-
-// shell variable
-typedef struct var {
-    char*       key;
-    char*       value;
-    int         isEnv;
-    struct var* next;
-} var;
-
-// shellvar.c
-
-void initShell();
-
-void add_var(char* key, char* value, int isEnv);
-
-void show_export();
-
-var* search_var(char* key);
-
-// alias.c
-
-void alias(char*** c);
 
 // minishell.c
 
@@ -53,21 +40,13 @@ void cmd_env(char** args);
 void cmd_echo(char** args);
 
 // exec.c
+Command* parse(char* input);
 
-// built-in command
-int is_builtin(char* cmd);
+Command* newCommand(char* input);
 
-void exec_builtin(Command* c);
-
-Command** parse(char* input);
-
-// execute a command
 void exec_command(Command* c);
 
-// whether the command runs in the background
-int isBackRun(char** args);
-
-void run_command(Command* c);
+int args_handler(Command* c);
 
 // history.c
 

@@ -3,17 +3,17 @@
 int startswith(const char* src, const char* dest) {
     int i = 0;
 
-    while (1) {
+    while (true) {
         if (*(src + i) || *(src + i) == '\0') {
             if (*(dest + i) == '\0') {
-                return 1;
+                return true;
             } else if (*(src + i) == *(dest + i)) {
                 i++;
             } else {
-                return 0;
+                return false;
             }
         } else {
-            return 0;
+            return false;
         }
     }
 }
@@ -21,17 +21,17 @@ int startswith(const char* src, const char* dest) {
 int endswith(const char* src, const char* dest) {
     int len1 = strlen(src), len2 = strlen(dest), i = 1;
 
-    if (len1 < len2) return 0;
+    if (len1 < len2) return false;
 
-    while (1) {
+    while (true) {
         if (i <= len2) {
             if (src[len1 - i] == dest[len2 - i]) {
                 i++;
             } else {
-                return 0;
+                return false;
             }
         } else {
-            return 1;
+            return true;
         }
     }
 }
@@ -50,7 +50,9 @@ char* strrepl(const char* str, const char* search, const char* replace_with, int
     }
 
     char* buf = (char*)malloc(sizeof(char) * len);
-    buf[0]    = '\0';
+    add_recycle(buf);
+
+    buf[0] = '\0';
 
     char* pos = NULL;
     char* p   = (char*)str;
@@ -73,7 +75,7 @@ char* strrepl(const char* str, const char* search, const char* replace_with, int
     return buf;
 }
 
-char** strsplit(const char* source, const char* separator) {
+char** strsplit(const char* source, const char* separator, int recycle) {
     int buf_s = 2, p = 0;
 
     // strtok cannot use const char*, so we make a copy.
@@ -97,6 +99,11 @@ char** strsplit(const char* source, const char* separator) {
 
     res[p] = token;  // end with NULL marker
 
+    if (recycle) {
+        add_recycle(s);
+        add_recycle(res);
+    }
+
     return res;
 }
 
@@ -105,8 +112,9 @@ char* strtrim(const char* str, const char* flag, Direct direct) {
     int i = 0;
 
     char* res = (char*)malloc(sizeof(char) * (len1 + 1));
+    add_recycle(res);
 
-    if (direct == left) {
+    if (direct == LEFT) {
         int s = startswith(str, flag);
 
         if (s) {
@@ -114,7 +122,7 @@ char* strtrim(const char* str, const char* flag, Direct direct) {
         } else {
             strcpy(res, str);
         }
-    } else if (direct == right) {
+    } else if (direct == RIGHT) {
         int s = endswith(str, flag);
 
         if (s) {
@@ -123,7 +131,7 @@ char* strtrim(const char* str, const char* flag, Direct direct) {
         } else {
             strcpy(res, str);
         }
-    } else if (direct == both) {
+    } else if (direct == BOTH) {
         int s1 = startswith(str, flag);
         int s2 = endswith(str, flag);
         int l  = len2;
@@ -165,6 +173,8 @@ char* strjoin(const char* src, const char* sub, const char* join_with) {
         strcat(res, sub);
     }
 
+    add_recycle(res);
+
     return res;
 }
 
@@ -173,13 +183,13 @@ int isDigit(char* str) {
 
     if (str[0] != '-') {
         for (int i = 0; i < len; i++) {
-            if (!isdigit(str[i])) return 0;
+            if (!isdigit(str[i])) return false;
         }
     } else {
         for (int i = 1; i < len; i++) {
-            if (!isdigit(str[i])) return 0;
+            if (!isdigit(str[i])) return false;
         }
     }
 
-    return 1;
+    return true;
 }

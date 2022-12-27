@@ -1,6 +1,6 @@
 #include "include/utils.h"
 
-void interruptHandler(int signum) {
-    write_to_history_and_close();
+void interrupt_handler(int signum) {
+    write_to_history(true);
     exit(EXIT_SUCCESS);
 }
