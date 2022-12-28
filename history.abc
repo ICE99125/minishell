@@ -1,0 +1,3 @@
+echo abc >> t.txt
+wc -l README.md
+wc -l < README.md

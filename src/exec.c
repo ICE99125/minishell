@@ -17,6 +17,8 @@ Command* newCommand(char* input) {
     c->back = false;
 
     args_handler(c);
+
+    return c;
 }
 
 char* builtin[] = { "export", "history", "echo", "env", NULL };
@@ -49,6 +51,8 @@ void exec_builtin(Command* c) {
 
 void run_command(Command* c) {
     if (c->p == NULL) {
+        set_redirect(c->redirect, c->path);
+
         if (is_builtin(c->cmd)) {
             exec_builtin(c);
         } else if (-1 == execvp(c->cmd, c->args)) {
@@ -67,6 +71,7 @@ void run_command(Command* c) {
             show_error(true, "create a new process failed");
         } else if (0 == pid) {
             // child process
+            set_redirect(c->redirect, c->path);
 
             // pipe
             close(pipe_fd[0]);
@@ -80,7 +85,9 @@ void run_command(Command* c) {
                 fprintf(stderr, "command execution failed.\n");
             }
         } else {
-            wait(&status);
+            if (c->back) {
+                wait(&status);
+            }
 
             close(pipe_fd[1]);
             if (-1 == dup2(pipe_fd[0], STDIN_FILENO)) {
@@ -172,9 +179,8 @@ Command* parse(char* input) {
 
             } else {
                 Command* c = newCommand(temp[j]);
-
-                c->p = pipe;
-                pipe = c;
+                c->p       = pipe;
+                pipe       = c;
             }
         }
 
@@ -187,52 +193,29 @@ Command* parse(char* input) {
     return reverse_link(res);
 }
 
-// shallow copy
-Command* clone_command(Command* c) {
-    Command* cc = (Command*)malloc(sizeof(Command));
-    add_recycle(cc);
-
-    cc->args     = c->args;
-    cc->back     = c->back;
-    cc->cmd      = c->cmd;
-    cc->redirect = c->redirect;
-    cc->raw      = c->raw;
-    cc->next     = NULL;
-    cc->path     = c->path;
-
-    return cc;
-}
-
 int args_handler(Command* c) {
-    char** args = c->args;
+    for (int i = 0; NULL != c->args[i]; i++) {
+        if (strequ(c->args[i], "&")) {
+            c->back    = true;
+            c->args[i] = NULL;
+            break;
+        } else if (strequ(c->args[i], ">>") || strequ(c->args[i], ">") || strequ(c->args[i], "<")) {
+            // only support "xxx >> yy" not support "xxx >> yy >> zz"
+            if (NULL == c->args[i + 1]) {
+                fprintf(stderr, "syntax error after %s.\n", c->args[i]);
+                break;
+            }
 
-    for (int i = 0; NULL != args[i]; i++) {
-        if (strequ(args[i], "&")) {
+            if (strequ(c->args[i], ">>")) {
+                c->redirect = R_DRIGHT;
+            } else if (strequ(c->args[i], ">")) {
+                c->redirect = R_RIGHT;
+            } else {
+                c->redirect = R_LEFT;
+            }
+
+            c->path    = c->args[i + 1];
+            c->args[i] = NULL;
         }
-        // if (strcmp(args[i], ">>") == 0 || strcmp(args[i], ">") == 0 || strcmp(args[i], "<") == 0) {
-        //     if (strcmp(args[i], ">>") == 0) {
-        //         c->redirect = R_DRIGHT;
-        //     } else if (strcmp(args[i], ">") == 0) {
-        //         c->redirect = R_RIGHT;
-        //     } else if (strcmp(args[i], "<") == 0) {
-        //         c->redirect = R_LEFT;
-        //     }
-
-        //     if (args[i + 1] == NULL || strcmp(args[i + 1], "&") == 0) {
-        //         fprintf(stderr, "syntax error after \"%s\".\n", args[i]);
-        //     }
-
-        //     int j = i + 2;
-        //     while (args[j]) {
-        //         if (strcmp(args[j], "&") == 0) {
-        //             c->back = 1;
-        //             break;
-        //         }
-
-        //         j++;
-        //     }
-
-        //     args[i] = NULL;
-        // }
     }
 }

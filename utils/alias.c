@@ -59,8 +59,10 @@ void init_alias() {
 // array length exclude NULL
 int array_len(char** c) {
     int i = 0;
-    while (c[i++])
-        ;
+    
+    while (c[i]) {
+        i++;
+    }
 
     return i;
 }

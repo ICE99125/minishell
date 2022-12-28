@@ -3,12 +3,6 @@
 
 #include "../../utils/include/utils.h"
 
-typedef enum {
-    R_LEFT,    // <
-    R_RIGHT,   // >
-    R_DRIGHT,  // >>
-} Redirect;
-
 typedef struct Command {
     char* cmd;
     char** args;

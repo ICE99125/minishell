@@ -84,6 +84,16 @@ typedef enum Direct {
     BOTH,
 } Direct;
 
+// redirect.c
+
+typedef enum {
+    R_LEFT,    // <
+    R_RIGHT,   // >
+    R_DRIGHT,  // >>
+} Redirect;
+
+void set_redirect(Direct dir, char* path);
+
 // str.c
 
 // whether string is equal
