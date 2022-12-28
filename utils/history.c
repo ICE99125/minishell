@@ -127,7 +127,7 @@ void clear_history() {
 FILE* open_history(char* mode) {
     FILE* fp = NULL;
 
-    if ((fp = fopen("history.abc", mode)) == NULL) {
+    if ((fp = fopen(".history", mode)) == NULL) {
         show_error(true, "open file \"history\" failed.");
     }
 

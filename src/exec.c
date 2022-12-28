@@ -51,6 +51,10 @@ void exec_builtin(Command* c) {
 
 void run_command(Command* c) {
     if (c->p == NULL) {
+        if (c->back) {
+            init_daemon();
+        }
+
         set_redirect(c->redirect, c->path);
 
         if (is_builtin(c->cmd)) {
@@ -85,9 +89,7 @@ void run_command(Command* c) {
                 fprintf(stderr, "command execution failed.\n");
             }
         } else {
-            if (c->back) {
-                wait(&status);
-            }
+            wait(&status);
 
             close(pipe_fd[1]);
             if (-1 == dup2(pipe_fd[0], STDIN_FILENO)) {

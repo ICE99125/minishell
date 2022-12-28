@@ -36,14 +36,14 @@ Alias* search_alias(char* cmd) {
 
 int max_default_args_len = 3;
 
-char* ll[]    = { "-alF", "--color=auto", NULL };
-char* l[]     = { "-CF", "--color=auto", NULL };
-char* la[]    = { "-A", "--color=auto", NULL };
-char* ls[]    = { "--color=auto", NULL };
-char* mv[]    = { "-i", NULL };
-char* rm[]    = { "-i", NULL };
-char* grep[]  = { "--color=auto", NULL };
-char* mkdir[] = { "-pv", NULL };
+char* ll[]   = { "-alF", "--color=auto", NULL };
+char* l[]    = { "-CF", "--color=auto", NULL };
+char* la[]   = { "-A", "--color=auto", NULL };
+char* ls[]   = { "--color=auto", NULL };
+char* mv[]   = { "-i", NULL };
+char* rm[]   = { "-i", NULL };
+char* grep[] = { "--color=auto", NULL };
+char* mk[]   = { "-pv", NULL };
 
 void init_alias() {
     add_alias("ll", "ls", ll);
@@ -53,13 +53,13 @@ void init_alias() {
     add_alias("mv", "mv", mv);
     add_alias("rm", "rm", rm);
     add_alias("grep", "grep", grep);
-    add_alias("mkdir", "mkdir", mkdir);
+    add_alias("mkdir", "mkdir", mk);
 }
 
 // array length exclude NULL
 int array_len(char** c) {
     int i = 0;
-    
+
     while (c[i]) {
         i++;
     }

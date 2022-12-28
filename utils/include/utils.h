@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/param.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>
@@ -169,5 +171,9 @@ void alias_handler(char*** c);
 void add_recycle(void* v);  // collect variables to be recycled
 
 void free_recycle();
+
+// daemon.c
+
+void init_daemon();
 
 #endif
