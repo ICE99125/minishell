@@ -1,5 +1,7 @@
 # MiniShell 的设计与实现
 
+连晓斌 2114575
+
 ## 实验目标
 
 - [x] 支持后台符号 `&`
@@ -108,7 +110,7 @@ env | grep user_name
 echo $user_name
 ```
 
-![demo10]()
+![demo10](/assets/demo10.png)
 
 shell 变量导出
 
