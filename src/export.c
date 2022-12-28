@@ -2,7 +2,7 @@
 
 void cmd_export(char** args) {
     // export or export -p
-    if (!args[0] || strcmp(args[0], "-p") == 0) {
+    if (!args[0] || strequ(args[0], "-p")) {
         show_export();
     } else {
         // export NAME=arcturus DIR=/home

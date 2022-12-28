@@ -2,9 +2,9 @@
 
 void cmd_history(char** args) {
     if (args[0] != NULL) {
-        if (strcmp(args[0], "-c") == 0) {
+        if (strequ(args[0], "-c")) {
             clear_history();
-        } else if (strcmp(args[0], "-a") == 0) {
+        } else if (strequ(args[0], "-a")) {
             write_to_history(true);
         } else if (isDigit(args[0])) {
             if (args[0][0] == '-') {

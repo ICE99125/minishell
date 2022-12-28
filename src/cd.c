@@ -28,13 +28,13 @@ void cmd_cd(char** args) {
         if (args[1] != NULL) {
             printf("cd: too many arguments.\n");
         } else {
-            if (strcmp(args[0], "~") == 0 || strcmp(args[0], "--") == 0) {
+            if (strequ(args[0], "~") || strequ(args[0], "--")) {
                 // cd ~ or cd --
                 char* path = get_cur_home_dir();
 
                 // return to home directory
                 change_dir(path);
-            } else if (strcmp(args[0], "-") == 0) {
+            } else if (strequ(args[0], "-")) {
                 // cd -
                 char* old = get_env("OLDPWD");
 

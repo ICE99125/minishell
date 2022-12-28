@@ -43,7 +43,7 @@ var* search_var(char* key) {
     var* p = node;
 
     while (p) {
-        if (strcmp(key, p->key) == 0) {
+        if (strequ(key, p->key)) {
             return p;
         }
 

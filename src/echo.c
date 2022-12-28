@@ -4,7 +4,7 @@ void cmd_echo(char** args) {
     int n = 1 /* newline */, options = 0;
 
     for (int i = 0; args[i] != NULL; i++) {
-        if (strcmp(args[i], "-n") == 0) {
+        if (strequ(args[i], "-n")) {
             n = 0;  // don't wrap
             options++;
         } else {

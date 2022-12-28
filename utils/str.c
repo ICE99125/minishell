@@ -193,3 +193,11 @@ int isDigit(char* str) {
 
     return true;
 }
+
+int strequ(const char* src, const char* dst) {
+    if (strcmp(src, dst) == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}

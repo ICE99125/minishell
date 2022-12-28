@@ -86,6 +86,9 @@ typedef enum Direct {
 
 // str.c
 
+// whether string is equal
+int strequ(const char* src, const char* dst);
+
 // whether string is a number
 int isDigit(char* str);
 

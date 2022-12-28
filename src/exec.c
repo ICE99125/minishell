@@ -16,7 +16,7 @@ Command* newCommand(char* input) {
     c->p    = NULL;
     c->back = false;
 
-    // args_handler(c);
+    args_handler(c);
 }
 
 char* builtin[] = { "export", "history", "echo", "env", NULL };
@@ -25,7 +25,7 @@ int is_builtin(char* cmd) {
     int i = 0;
 
     while (builtin[i]) {
-        if (strcmp(cmd, builtin[i++]) == 0) {
+        if (strequ(cmd, builtin[i++])) {
             return true;
         }
     }
@@ -34,13 +34,13 @@ int is_builtin(char* cmd) {
 }
 
 void exec_builtin(Command* c) {
-    if (strcmp(c->cmd, "export") == 0) {
+    if (strequ(c->cmd, "export")) {
         cmd_export(c->args + 1);
-    } else if (strcmp(c->cmd, "history") == 0) {
+    } else if (strequ(c->cmd, "history")) {
         cmd_history(c->args + 1);
-    } else if (strcmp(c->cmd, "echo") == 0) {
+    } else if (strequ(c->cmd, "echo")) {
         cmd_echo(c->args + 1);
-    } else if (strcmp(c->cmd, "env") == 0) {
+    } else if (strequ(c->cmd, "env")) {
         cmd_env(c->args + 1);
     }
 
@@ -93,14 +93,14 @@ void run_command(Command* c) {
 }
 
 void exec_command(Command* c) {
-    if (strcmp(c->cmd, "exit") == 0) {
+    if (strequ(c->cmd, "exit")) {
         if (!c->p) {
             // execute only no pipe
             cmd_exit();
         } else {
             c = c->p;
         }
-    } else if (strcmp(c->cmd, "cd") == 0) {
+    } else if (strequ(c->cmd, "cd")) {
         if (c->p) {
             // similar to "cd .. | xxx" will skip cd
             c = c->p;
@@ -207,30 +207,32 @@ int args_handler(Command* c) {
     char** args = c->args;
 
     for (int i = 0; NULL != args[i]; i++) {
-        if (strcmp(args[i], ">>") == 0 || strcmp(args[i], ">") == 0 || strcmp(args[i], "<") == 0) {
-            if (strcmp(args[i], ">>") == 0) {
-                c->redirect = R_DRIGHT;
-            } else if (strcmp(args[i], ">") == 0) {
-                c->redirect = R_RIGHT;
-            } else if (strcmp(args[i], "<") == 0) {
-                c->redirect = R_LEFT;
-            }
-
-            if (args[i + 1] == NULL || strcmp(args[i + 1], "&") == 0) {
-                fprintf(stderr, "syntax error after \"%s\".\n", args[i]);
-            }
-
-            int j = i + 2;
-            while (args[j]) {
-                if (strcmp(args[j], "&") == 0) {
-                    c->back = 1;
-                    break;
-                }
-
-                j++;
-            }
-
-            args[i] = NULL;
+        if (strequ(args[i], "&")) {
         }
+        // if (strcmp(args[i], ">>") == 0 || strcmp(args[i], ">") == 0 || strcmp(args[i], "<") == 0) {
+        //     if (strcmp(args[i], ">>") == 0) {
+        //         c->redirect = R_DRIGHT;
+        //     } else if (strcmp(args[i], ">") == 0) {
+        //         c->redirect = R_RIGHT;
+        //     } else if (strcmp(args[i], "<") == 0) {
+        //         c->redirect = R_LEFT;
+        //     }
+
+        //     if (args[i + 1] == NULL || strcmp(args[i + 1], "&") == 0) {
+        //         fprintf(stderr, "syntax error after \"%s\".\n", args[i]);
+        //     }
+
+        //     int j = i + 2;
+        //     while (args[j]) {
+        //         if (strcmp(args[j], "&") == 0) {
+        //             c->back = 1;
+        //             break;
+        //         }
+
+        //         j++;
+        //     }
+
+        //     args[i] = NULL;
+        // }
     }
 }

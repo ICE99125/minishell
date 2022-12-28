@@ -4,7 +4,7 @@ void cmd_env(char** args) {
     if (!args[0]) {
         // env
         show_all_env();
-    } else if (strcmp(args[0], "-u") == 0) {
+    } else if (strequ(args[0], "-u")) {
         if (!args[1]) {
             printf("env: need an argument.\n");
         } else {

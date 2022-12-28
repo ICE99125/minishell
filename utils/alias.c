@@ -24,7 +24,7 @@ Alias* search_alias(char* cmd) {
     Alias* n = ap;
 
     while (n) {
-        if (strcmp(cmd, n->alias) == 0) {
+        if (strequ(cmd, n->alias)) {
             return n;
         }
 
