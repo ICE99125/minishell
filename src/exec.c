@@ -117,6 +117,23 @@ void exec_command(Command* c) {
             cmd_cd(c->args + 1);
             return;
         }
+    } else if (strequ(c->cmd, "history")) {
+        // child process cannot mmodify parent process variable
+        // so we can only modify without fork()
+        if (c->args[1] != NULL && strequ(c->args[1], "-c")) {
+            cmd_history(c->args + 1);
+            return;
+        }
+    } else if (strequ(c->cmd, "export")) {
+        if (c->args[1] != NULL && !strequ(c->args[1], "-p")) {
+            cmd_export(c->args + 1);
+            return;
+        }
+    } else if (strequ(c->cmd, "env")) {
+        if (c->args[1] != NULL) {
+            cmd_env(c->args + 1);
+            return;
+        }
     }
 
     pid_t pid = fork();
@@ -172,24 +189,28 @@ Command* parse(char* input) {
             if (strstr(temp[j], " ") == NULL && strstr(temp[j], "=") != NULL) {
                 // NAME=123
                 t = strsplit(temp[j], "=", false);
-                add_var(t[0], t[1], 0);
+                add_var(t[0], t[1], false);
 
-                pipe       = reverse_pipe(pipe);
-                pipe->next = res;
-                res        = pipe;
-                pipe       = NULL;
-
+                if (pipe) {
+                    pipe       = reverse_pipe(pipe);
+                    pipe->next = res;
+                    res        = pipe;
+                    pipe       = NULL;
+                }
             } else {
                 Command* c = newCommand(temp[j]);
-                c->p       = pipe;
-                pipe       = c;
+
+                c->p = pipe;
+                pipe = c;
             }
         }
 
-        pipe       = reverse_pipe(pipe);
-        pipe->next = res;
-        res        = pipe;
-        pipe       = NULL;
+        if (pipe) {
+            pipe       = reverse_pipe(pipe);
+            pipe->next = res;
+            res        = pipe;
+            pipe       = NULL;
+        }
     }
 
     return reverse_link(res);

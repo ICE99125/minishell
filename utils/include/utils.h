@@ -116,7 +116,7 @@ char* strrepl(const char* str, const char* search, const char* replace_with, int
 char** strsplit(const char* source, const char* separator, int recycle);
 
 // @param direct: 0: left, 1: right, 2: both
-char* strtrim(const char* str, const char* flag, Direct direct);
+char* strtrim(const char* str, const char* flag, Direct direct, int recycle);
 
 // concatenate string
 char* strjoin(const char* src, const char* sub, const char* join_with);

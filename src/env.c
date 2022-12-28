@@ -21,10 +21,19 @@ void cmd_env(char** args) {
             strncpy(key, args[0], p - args[0]);
             key[p - args[0]] = '\0';
 
-            char* value = strtrim(p + 1, "\"", BOTH);  // remove the double quotation marks
+            char* value = strtrim(p + 1, "\"", BOTH, false);  // remove the double quotation marks
 
-            set_env(key, value, 1);
-            add_recycle(key);
+            var* v = search_var(key);
+
+            if (v != NULL) {
+                v->value  = value;
+                v->is_env = true;
+            } else {
+                add_var(key, value, true);
+            }
+
+            set_env(key, value, true);
+
             show_all_env();
         } else {
             if (access(args[0], F_OK) == -1) {

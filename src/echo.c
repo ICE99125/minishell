@@ -17,7 +17,7 @@ void cmd_echo(char** args) {
 
     while (args[i] != NULL) {
         // echo "xxx" will become echo xxx
-        c = strtrim(args[i], "\"", BOTH);
+        c = strtrim(args[i], "\"", BOTH, true);
 
         char* p = strstr(c, "$");
 

@@ -13,14 +13,19 @@ void cmd_export(char** args) {
 
             var* v = search_var(t[0]);
 
+            char* value = NULL;
+
             if (v != NULL) {
-                v->value  = t[1];
-                v->is_env = 1;
+                value = t[1] == NULL ? v->value : t[1];
+
+                v->value  = value;
+                v->is_env = true;
             } else {
-                add_var(t[0], t[1], 1);
+                value = t[1] == NULL ? "" : t[1];
+                add_var(t[0], value, true);
             }
 
-            set_env(t[0], t[1], 1);  // export shell variable to environment variable
+            set_env(t[0], value, true);  // export shell variable to environment variable
 
             i++;
         }

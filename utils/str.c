@@ -107,12 +107,15 @@ char** strsplit(const char* source, const char* separator, int recycle) {
     return res;
 }
 
-char* strtrim(const char* str, const char* flag, Direct direct) {
+char* strtrim(const char* str, const char* flag, Direct direct, int recycle) {
     int len1 = strlen(str), len2 = strlen(flag);
     int i = 0;
 
     char* res = (char*)malloc(sizeof(char) * (len1 + 1));
-    add_recycle(res);
+
+    if (recycle) {
+        add_recycle(res);
+    }
 
     if (direct == LEFT) {
         int s = startswith(str, flag);
