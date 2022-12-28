@@ -17,6 +17,7 @@ typedef struct Command {
     Redirect redirect;  // redirect method
     char* path;         // redirect path
     struct Command* next;
+    struct Command* p;  // pipe
 } Command;
 
 // minishell.c

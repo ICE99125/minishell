@@ -74,7 +74,7 @@ void show_history(int num) {
         cmdLink* link = start;
 
         while (link) {
-            printf("%d %s", link->id, link->cmd);
+            fprintf(stdout, "%d %s", link->id, link->cmd);
             link = link->next;
         }
 
@@ -88,7 +88,7 @@ void show_history(int num) {
         }
 
         for (int i = 0; i < n; i++) {
-            printf("%d %s", link->id, link->cmd);
+            fprintf(stdout, "%d %s", link->id, link->cmd);
             link = link->next;
         }
     }
@@ -127,7 +127,7 @@ void clear_history() {
 FILE* open_history(char* mode) {
     FILE* fp = NULL;
 
-    if ((fp = fopen("history", mode)) == NULL) {
+    if ((fp = fopen("history.abc", mode)) == NULL) {
         show_error(true, "open file \"history\" failed.");
     }
 

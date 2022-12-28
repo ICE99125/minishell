@@ -22,12 +22,7 @@ void run() {
 
         int i = 0;
         while (list) {
-            if (strcmp(list->cmd, "exit") == 0) {
-                cmd_exit();
-            } else {
-                exec_command(list);
-            }
-
+            exec_command(list);
             list = list->next;
         }
 

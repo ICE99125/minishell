@@ -12,11 +12,14 @@ Command* newCommand(char* input) {
     c->args = t;
     c->raw  = input;
     c->next = NULL;
+    c->path = NULL;
+    c->p    = NULL;
+    c->back = false;
 
     // args_handler(c);
 }
 
-char* builtin[] = { "cd", "export", "history", "echo", "env", NULL };
+char* builtin[] = { "export", "history", "echo", "env", NULL };
 
 int is_builtin(char* cmd) {
     int i = 0;
@@ -31,9 +34,7 @@ int is_builtin(char* cmd) {
 }
 
 void exec_builtin(Command* c) {
-    if (strcmp(c->cmd, "cd") == 0) {
-        cmd_cd(c->args + 1);
-    } else if (strcmp(c->cmd, "export") == 0) {
+    if (strcmp(c->cmd, "export") == 0) {
         cmd_export(c->args + 1);
     } else if (strcmp(c->cmd, "history") == 0) {
         cmd_history(c->args + 1);
@@ -42,33 +43,83 @@ void exec_builtin(Command* c) {
     } else if (strcmp(c->cmd, "env") == 0) {
         cmd_env(c->args + 1);
     }
+
+    exit(EXIT_SUCCESS);
+}
+
+void run_command(Command* c) {
+    if (c->p == NULL) {
+        if (is_builtin(c->cmd)) {
+            exec_builtin(c);
+        } else if (-1 == execvp(c->cmd, c->args)) {
+            fprintf(stderr, "command execution failed.\n");
+        }
+    } else {
+        int pipe_fd[2], status;
+
+        if (pipe(pipe_fd) < 0) {
+            show_error(true, "create pipe failed");
+        }
+
+        pid_t pid = fork();
+
+        if (pid < 0) {
+            show_error(true, "create a new process failed");
+        } else if (0 == pid) {
+            // child process
+
+            // pipe
+            close(pipe_fd[0]);
+            if (-1 == dup2(pipe_fd[1], STDOUT_FILENO)) {
+                show_error(false, "dup2 failed");
+            }
+
+            if (is_builtin(c->cmd)) {
+                exec_builtin(c);
+            } else if (-1 == execvp(c->cmd, c->args)) {
+                fprintf(stderr, "command execution failed.\n");
+            }
+        } else {
+            wait(&status);
+
+            close(pipe_fd[1]);
+            if (-1 == dup2(pipe_fd[0], STDIN_FILENO)) {
+                show_error(false, "dup2 failed");
+            }
+
+            run_command(c->p);
+        }
+    }
 }
 
 void exec_command(Command* c) {
-    int status;
+    if (strcmp(c->cmd, "exit") == 0) {
+        if (!c->p) {
+            // execute only no pipe
+            cmd_exit();
+        } else {
+            c = c->p;
+        }
+    } else if (strcmp(c->cmd, "cd") == 0) {
+        if (c->p) {
+            // similar to "cd .. | xxx" will skip cd
+            c = c->p;
+        } else {
+            cmd_cd(c->args + 1);
+            return;
+        }
+    }
 
     pid_t pid = fork();
 
-    if (0 == pid) {
+    if (pid < 0) {
+        show_error(true, "create a new process failed");
+    } else if (0 == pid) {
         // child process
-        if (is_builtin(c->cmd)) {
-            exec_builtin(c);
-        } else {
-            if (-1 == execvp(c->cmd, c->args)) {
-                fprintf(stderr, "command execution error.\n");
-            }
-        }
-    } else if (pid < 0) {
-        fprintf(stderr, "create a new process error.\n");
+        run_command(c);
     } else {
         // parent process
-        while (true) {
-            pid = wait(&status);
-
-            if (-1 == pid) {
-                break;
-            }
-        }
+        wait(NULL);
     }
 }
 
@@ -85,28 +136,52 @@ Command* reverse_link(Command* n) {
     return pre;
 }
 
+Command* reverse_pipe(Command* n) {
+    Command *pre = NULL, *cur = n, *next = NULL;
+
+    while (cur) {
+        next   = cur->p;
+        cur->p = pre;
+        pre    = cur;
+        cur    = next;
+    }
+
+    return pre;
+}
+
 // parse user input into an Command array
 Command* parse(char* input) {
     char** cmds = strsplit(input, ";\r\n", true);  // split by ';'
     char **temp = NULL, **t = NULL;
 
-    Command* res = NULL;
+    Command *res = NULL, *pipe = NULL;
 
     for (int i = 0; NULL != cmds[i]; i++) {
         temp = strsplit(cmds[i], "|", true);
 
         for (int j = 0; NULL != temp[j]; j++) {
-            if (strstr(temp[j], "=") != NULL) {
+            if (strstr(temp[j], " ") == NULL && strstr(temp[j], "=") != NULL) {
                 // NAME=123
                 t = strsplit(temp[j], "=", false);
                 add_var(t[0], t[1], 0);
+
+                pipe       = reverse_pipe(pipe);
+                pipe->next = res;
+                res        = pipe;
+                pipe       = NULL;
+
             } else {
                 Command* c = newCommand(temp[j]);
 
-                c->next = res;
-                res     = c;
+                c->p = pipe;
+                pipe = c;
             }
         }
+
+        pipe       = reverse_pipe(pipe);
+        pipe->next = res;
+        res        = pipe;
+        pipe       = NULL;
     }
 
     return reverse_link(res);
