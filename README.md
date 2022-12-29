@@ -110,7 +110,7 @@ env | grep user_name
 echo $user_name
 ```
 
-![demo10](/assets/demo10.png)
+![demo11](/assets/demo11.png)
 
 shell 变量导出
 
@@ -126,7 +126,7 @@ export abc
 export | grep abc
 ```
 
-![demo11](/assets/demo10.png)
+![demo10](/assets/demo10.png)
 
 ### 后台运行
 
